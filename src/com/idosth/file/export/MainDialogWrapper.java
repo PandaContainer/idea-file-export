@@ -30,6 +30,7 @@ public class MainDialogWrapper extends JDialog {
     private JRadioButton onlyFileRadio;
     private JRadioButton structureRadio;
     private JLabel pathLabel;
+    private JCheckBox recursivelyCheckBox;
     //用于接收选中的文件
     private AnActionEvent event;
     private String exportModel;
@@ -66,28 +67,50 @@ public class MainDialogWrapper extends JDialog {
             for (int i = 0; i < fileListModel.getSize(); i++) {
                 VirtualFile file = fileListModel.getElementAt(i);
                 File sourceFile = new File(file.getPath());
-                //判断是否需要导出文件目录
-                if (structureRadio.isSelected()) {
-                    //获取当前项目路径
-                    Project project = event.getProject();
-                    if (project != null && project.getBasePath() != null) {
-
-                        String[] paths = sourceFile.getCanonicalPath().split("\\\\" + project.getName() + "\\\\");
-                        if (paths.length > 1) {
-                            File targetFile = new File(outputPath + "/" + project.getName() + "/" + paths[1]);
-                            FileUtil.copy(sourceFile, targetFile);
-                        }
+                if (sourceFile.isDirectory()) {
+                    for (File subSourceFile : sourceFile.listFiles()) {
+                        createFile(subSourceFile, outputPath);
                     }
-                } else if (onlyFileRadio.isSelected()) {
-                    File targetFile = new File(outputPath + "/" + sourceFile.getName());
-                    FileUtil.copy(sourceFile, targetFile);
+                } else {
+                    createFile(sourceFile, outputPath);
                 }
             }
-        } catch (IOException e) {
+            Messages.showInfoMessage("Export Finished!", "Success");
+        } catch (Exception e) {
+            e.printStackTrace();
             Messages.showErrorDialog(this, "程序出错，请联系作者！", "Error");
             return;
         }
         dispose();
+    }
+
+    /**
+     * 复制文件
+     */
+    private void createFile(File sourceFile, String outputPath) throws IOException {
+        if (sourceFile.isDirectory()) {
+            if (recursivelyCheckBox.isSelected()) {
+                for (File subSourceFile : sourceFile.listFiles()) {
+                    createFile(subSourceFile, outputPath);
+                }
+            }
+        } else {
+            //获取当前项目路径
+            Project project = event.getProject();
+            //判断是否需要导出文件目录
+            if (structureRadio.isSelected()) {
+                if (project != null && project.getPresentableUrl() != null) {
+                    // 将windows路径分隔符替换成Java正则表达式中的路径分隔符
+                    String projectPathRegex = project.getPresentableUrl().replaceAll("\\\\", "\\\\\\\\");
+                    String path = sourceFile.getCanonicalPath().replaceFirst(projectPathRegex, "");
+                    File targetFile = new File(outputPath + File.separator + project.getName() + File.separator + path);
+                    FileUtil.copy(sourceFile, targetFile);
+                }
+            } else if (onlyFileRadio.isSelected()) {
+                File targetFile = new File(outputPath + File.separator + project.getName() + File.separator + sourceFile.getName());
+                FileUtil.copy(sourceFile, targetFile);
+            }
+        }
     }
 
     private void onCancel() {
@@ -134,7 +157,7 @@ public class MainDialogWrapper extends JDialog {
         VirtualFile[] data = event.getData(DataKeys.VIRTUAL_FILE_ARRAY);
         List<VirtualFile> fileList = new ArrayList<>();
         for (VirtualFile datum : data) {
-            if (!datum.isDirectory()) {
+            if (datum.exists()) {
                 fileList.add(datum);
             }
         }

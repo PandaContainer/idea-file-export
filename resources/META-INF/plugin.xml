@@ -1,16 +1,17 @@
 <idea-plugin>
-  <id>com.your.company.unique.plugin.id</id>
+  <id>暂未注册</id>
   <name>Idea File export</name>
-  <version>1.1</version>
-  <vendor email="yege2019@163.com" url="https://github.com/yege2006/idea-file-export">yege2006</vendor>
+  <version>1.2</version>
+  <vendor email="xuhongbao1@163.com" url="https://github.com/PandaContainer/idea-file-export">xuhongbao</vendor>
 
-  <description>计划实现类似eclipse中的export文件的功能，
-    主要是给一些有特殊需求比如导出文件目录结构等提供便利
+  <description>
+    计划实现类似eclipse中的export文件的功能，主要是给一些有特殊需求比如导出文件目录结构等提供便利。
   </description>
 
   <change-notes>
-    计划实现类似eclipse中的export文件的功能，
-    主要是给一些有特殊需求比如导出文件目录结构等提供便利
+    1.计划实现类似eclipse中的export文件的功能，主要是给一些有特殊需求比如导出文件目录结构等提供便利；
+    2.增加系统异常输出控制台信息，导出成功弹出提示框，支持文件夹导出，新增递归导出子文件夹选项；
+    3.当前版本只在Windows系统测试过。
   </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
